@@ -5,6 +5,7 @@ import re
 import sys
 import uuid
 import base64
+import getpass
 import requests
 
 SUCCESS = 0
@@ -15,7 +16,7 @@ ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 
 
-def auth(ip, usercode, password):
+def auth(ip, usercode, password, isp):
     """登录并认证主机
 
     传入主机IP地址、学号、密码，对主机进行认证
@@ -24,13 +25,21 @@ def auth(ip, usercode, password):
         IP: 主机IP地址
         usercode: 学号
         password: 密码
+        isp: 运营商
+
+        isp: xyw     教师专用
+             telecom 中国电信
+             cmcc    中国移动
+             unicom  中国联通
+             edu     教育网
+
 
     Returns:
         SUCCESS: 登录认证成功
         ID_FAILED: 学号认证失败
         AUTH_FAILE: 密码或学号错误
     """
-    auth_str = '||{ip}|000000000000|@telecom|1'.format(ip=ip)
+    auth_str = '||{ip}|000000000000|@{isp}|1'.format(ip=ip, isp=isp)
 
     auth_code = str(base64.b64encode(bytes(auth_str, encoding='utf-8')),
                     encoding='utf-8')
@@ -110,11 +119,23 @@ def get_auth_status(ip):
 
 
 if __name__ == '__main__':
-    ip, usercode, password = sys.argv[1:]
+    ip, usercode = sys.argv[1:]
     if get_auth_status(ip):
         print('You are already logged in')
     else:
-        print(auth(ip, usercode, password))
+        ipss = ['xyw', 'telecom', 'cmcc', 'unicom', 'edu']
+        print(
+            '1. xyw (Teacher only)\n' +
+            '2. telecom\n'  +
+            '3. cmcc\n' +
+            '4. unicom\n' +
+            '5. edu'
+        )
+        isp = int(input('Please select an ISP [1-5]:')) - 1
+        password = getpass.getpass()
+        
+        print(auth(ip, usercode, password, ipss[isp]))
+
         if get_auth_status(ip):
             print('Login successful')
         else:

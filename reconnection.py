@@ -66,7 +66,7 @@ def online_test():
         return False
 
 
-def reconnect(usercode, password, sleep_seconds=60):
+def reconnect(usercode, password, isp, sleep_seconds=60):
     """断线自动重连
 
     传入主机学号、密码，脚本会一直检测网络连接
@@ -99,7 +99,7 @@ def reconnect(usercode, password, sleep_seconds=60):
         print('Warn: Network disconnection detected')
 
         if not auth.get_auth_status(ip):
-            login_result = auth.auth(ip, usercode, password)
+            login_result = auth.auth(ip, usercode, password, isp)
             if auth.SUCCESS == login_result:
                 # 已重新登录网络
                 print('Info: Have relogined to the network')
@@ -128,6 +128,6 @@ but the network is disconnected')
 
 
 if __name__ == '__main__':
-    usercode, password = sys.argv[1:]
-    reconnect(usercode, password)
+    usercode, password, isp = sys.argv[1:]
+    reconnect(usercode, password, isp)
 
