@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
+# import re
 import sys
 import uuid
+import json
 import base64
 import getpass
 import requests
@@ -98,8 +99,23 @@ def get_auth_status(ip):
        ip: 主机IP地址
 
     Returns:
-        True: 认证成功
-        False: 认证失败
+        auth_info: 认证成功, 包含认证信息对字典
+        {'result': '1',
+         'msg': '成功',
+         'list': [{'online_session': 5677,
+           'online_time': '2022-03-11 11:01:56',
+           'online_ip': '172.99.99.99',
+           'online_mac': '1234567890ab',
+           'time_long': '9066',
+           'uplink_bytes': '4351',
+           'downlink_bytes': '33735',
+           'dhcp_host': '',
+           'device_alias': '',
+           'nas_ip': '12345678',
+           'user_account': '2020009999',
+           'is_owner_ip': '1'}]}
+
+        {}: 认证失败
     """
     with requests.Session() as s:
         s.headers.update({'User-Agent': ua})
@@ -109,13 +125,13 @@ def get_auth_status(ip):
             'a': 'find_mac',
             'wlan_user_ip': ip,
         }
-        auth_status = s.get(url, params=params)
+        auth_info = s.get(url, params=params)
+        auth_info = json.loads(auth_info.text[1:-1])
 
-        auth_code = re.search(r'\"result\":\"(.)\"', auth_status.text).group(1)
-        if auth_code == '1':
-            return True
+        if auth_info['result'] == '1':
+            return auth_info
         else:
-            return False
+            return {}
 
 
 if __name__ == '__main__':
