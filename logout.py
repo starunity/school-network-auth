@@ -27,7 +27,7 @@ def logout(ip):
         }
         
         logout_info = s.get(url, params=params)
-        logout_info = json.loads(logout_info.text[7:-1])
+        logout_info = json.loads(logout_info.text[1:-1])
         
     if logout_info['result'] == '1':
         return True
